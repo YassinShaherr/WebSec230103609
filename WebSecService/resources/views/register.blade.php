@@ -6,14 +6,12 @@
 <div class="container mt-5">
     <h2>Register</h2>
     
-    <!-- Display success message -->
     @if(session('message'))
       <div class="alert alert-success">
         {{ session('message') }}
       </div>
     @endif
 
-    <!-- Display validation errors -->
     @if($errors->any())
       <div class="alert alert-danger">
           <ul>
@@ -38,11 +36,6 @@
           <label for="password" class="form-label">Password</label>
           <input type="password" name="password" id="password" class="form-control" required>
         </div>
-        <!-- <div class="mb-3">
-          <label for="lucky_number" class="form-label">Lucky Number</label>
-          <input type="number" name="lucky_number" id="lucky_number" class="form-control" required>
-          <small class="text-muted">We will check if your lucky number is even or odd.</small>
-        </div> -->
         <button type="submit" class="btn btn-primary">Register</button>
     </form>
 </div>

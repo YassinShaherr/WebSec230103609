@@ -12,24 +12,20 @@ class WebSecController extends Controller
 
     public function register(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|max:255',
             'password' => 'required|string|min:6'
         ]);
 
-        // Check if email already exists
         if ($this->emailExists($validated['email'])) {
             return back()->withErrors([
                 'email' => 'This email is already registered.',
             ]);
         }
 
-        // Hash the password
         $hashedPassword = Hash::make($validated['password']);
 
-        // Save user to CSV
         $userData = [
             $validated['name'],
             $validated['email'],
@@ -50,23 +46,19 @@ class WebSecController extends Controller
             'password' => 'required',
         ]);
 
-        // Read CSV and check credentials
         if ($userData = $this->checkCredentials($credentials['email'], $credentials['password'])) {
             $request->session()->regenerate();
             
-            // Add debugging
             \Log::info('Login successful', [
                 'user' => $userData,
                 'session' => $request->session()->all()
             ]);
             
-            // Store user data in session
             $request->session()->put('user', [
                 'name' => $userData['name'],
                 'email' => $userData['email']
             ]);
             
-            // Changed the redirect to use url generation and ensure success message is passed
             return redirect()->to('/home')->with('success', 'Welcome back, ' . $userData['name']);
         }
 
