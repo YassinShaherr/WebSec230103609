@@ -1,16 +1,13 @@
 @extends('layouts.master')
 @section('title', 'Prime Numbers')
 @section('content')
-    <div class="card m-4">
-        <div class="card-header">Prime Number</div>
-        <div class="card-body">
-            @foreach (range(1, 100) as $i)
-                @if (isPrime($i))
-                    <span class="badge bg-primary">{{ $i }}</span>
-                @else
-                    <span class="badge bg-secondary">{{ $i }}</span>
-                @endif
+    <div class="container mt-5">
+        <h2 class="text-center">Prime Numbers</h2>
+        <p class="lead text-center">Here you can find a list of prime numbers.</p>
+        <ul class="list-group">
+            @foreach ([2, 3, 5, 7, 11, 13, 17, 19, 23, 29] as $prime)
+                <li class="list-group-item">{{ $prime }}</li>
             @endforeach
-        </div>
+        </ul>
     </div>
 @endsection

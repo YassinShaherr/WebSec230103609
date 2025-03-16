@@ -1,28 +1,28 @@
 @extends('layouts.master')
 @section('title', 'Multiplication Table')
 @section('content')
-    <div class="card m-4">
-        <div class="card-header">Multiplication Table</div>
-        <div class="card-body">
-            <div class="row">
-                @foreach (range(1, 12) as $j)
-                    <div class="col-sm-3">
-                        <div class="card m-3">
-                            <div class="card-header">{{ $j }} Multiplication Table</div>
-                            <div class="card-body">
-                                <table>
-                                    @foreach (range(1, 10) as $i)
-                                        <tr>
-                                            <td>{{ $i }} * {{ $j }}</td>
-                                            <td>= {{ $i * $j }}</td>
-                                        </tr>
-                                    @endforeach
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
+    <div class="container mt-5">
+        <h2 class="text-center">Multiplication Table</h2>
+        <p class="lead text-center">Here you can find a multiplication table.</p>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th></th>
+                    @for ($i = 1; $i <= 10; $i++)
+                        <th>{{ $i }}</th>
+                    @endfor
+                </tr>
+            </thead>
+            <tbody>
+                @for ($i = 1; $i <= 10; $i++)
+                    <tr>
+                        <th>{{ $i }}</th>
+                        @for ($j = 1; $j <= 10; $j++)
+                            <td>{{ $i * $j }}</td>
+                        @endfor
+                    </tr>
+                @endfor
+            </tbody>
+        </table>
     </div>
 @endsection
