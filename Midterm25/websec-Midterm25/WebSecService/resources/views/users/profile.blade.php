@@ -11,6 +11,9 @@
                 <th>Email</th><td>{{$user->email}}</td>
             </tr>
             <tr>
+                <th>Credit</th><td>${{number_format($user->credit, 2)}}</td>
+            </tr>
+            <tr>
                 <th>Roles</th>
                 <td>
                     @foreach($user->roles as $role)
@@ -31,12 +34,14 @@
         <div class="row">
             <div class="col col-6">
             </div>
-            @if(auth()->user()->hasPermissionTo('admin_users')||auth()->id()==$user->id)
-            <div class="col col-4">
-                <a class="btn btn-primary" href='{{route('edit_password', $user->id)}}'>Change Password</a>
+            @if(auth()->user()->hasPermissionTo('admin_users'))
+            <div class="col col-3">
+                <a class="btn btn-primary" href='{{route('edit_credit', $user->id)}}'>Manage Credit</a>
             </div>
-            @else
-            <div class="col col-4">
+            @endif
+            @if(auth()->user()->hasPermissionTo('admin_users')||auth()->id()==$user->id)
+            <div class="col col-3">
+                <a class="btn btn-primary" href='{{route('edit_password', $user->id)}}'>Change Password</a>
             </div>
             @endif
             @if(auth()->user()->hasPermissionTo('edit_users')||auth()->id()==$user->id)

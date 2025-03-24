@@ -19,7 +19,6 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <!-- Repeat for other fields -->
                     <div class="col-md-6">
                         <label for="photo" class="form-label">Product Image</label>
                         <input type="file" class="form-control @error('photo') is-invalid @enderror" 

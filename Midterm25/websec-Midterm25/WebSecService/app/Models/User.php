@@ -25,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'credit',
     ];
 
     /**
@@ -47,6 +48,35 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'credit' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Add credit to user's account
+     *
+     * @param float $amount
+     * @return void
+     */
+    public function addCredit(float $amount)
+    {
+        $this->credit += $amount;
+        $this->save();
+    }
+
+    /**
+     * Use credit from user's account
+     *
+     * @param float $amount
+     * @return bool
+     */
+    public function useCredit(float $amount)
+    {
+        if ($this->credit >= $amount) {
+            $this->credit -= $amount;
+            $this->save();
+            return true;
+        }
+        return false;
     }
 }

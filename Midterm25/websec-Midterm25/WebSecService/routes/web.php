@@ -16,8 +16,10 @@ Route::post('users/save/{user}', [UsersController::class, 'save'])->name('users_
 Route::get('users/delete/{user}', [UsersController::class, 'delete'])->name('users_delete');
 Route::get('users/edit_password/{user?}', [UsersController::class, 'editPassword'])->name('edit_password');
 Route::post('users/save_password/{user}', [UsersController::class, 'savePassword'])->name('save_password');
-
-
+Route::get('users/edit_credit/{user}', [UsersController::class, 'editCredit'])->name('edit_credit');
+Route::post('users/add_credit/{user}', [UsersController::class, 'addCredit'])->name('add_credit');
+Route::get('users/create', [UsersController::class, 'create'])->name('users_create');
+Route::post('users/store', [UsersController::class, 'store'])->name('users_store');
 
 Route::get('products', [ProductsController::class, 'list'])->name('products_list');
 Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');
@@ -45,3 +47,5 @@ Route::get('/prime', function () {
 Route::get('/test', function () {
     return view('test');
 });
+
+Route::get('setup-permissions', [UsersController::class, 'ensurePermissionsAndRoles'])->name('setup_permissions');

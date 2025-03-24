@@ -33,6 +33,19 @@ class UsersController extends Controller {
     }
 
     public function doRegister(Request $request) {
+        $customerRole = Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+        
+        $viewProductsPermission = Permission::firstOrCreate(
+            ['name' => 'view_products', 'guard_name' => 'web'],
+            ['display_name' => 'View Products']
+        );
+        
+        $addToCartPermission = Permission::firstOrCreate(
+            ['name' => 'add_to_cart', 'guard_name' => 'web'],
+            ['display_name' => 'Add to Cart']
+        );
+        
+        $customerRole->givePermissionTo([$viewProductsPermission, $addToCartPermission]);
 
     	try {
     		$this->validate($request, [
@@ -53,8 +66,11 @@ class UsersController extends Controller {
     	$user =  new User();
 	    $user->name = $request->name;
 	    $user->email = $request->email;
-	    $user->password = bcrypt($request->password); //Secure
+	    $user->password = bcrypt($request->password);
+	    $user->credit = 0.00;
 	    $user->save();
+
+        $user->assignRole('customer');
 
         return redirect('/');
     }
@@ -189,5 +205,106 @@ class UsersController extends Controller {
         $user->save();
 
         return redirect(route('profile', ['user'=>$user->id]));
+    }
+
+    public function addCredit(Request $request, User $user)
+    {
+        if (!auth()->user()->hasPermissionTo('admin_users')) {
+            abort(401);
+        }
+        
+        $this->validate($request, [
+            'amount' => 'required|numeric|min:0.01',
+        ]);
+        
+        $user->addCredit($request->amount);
+        
+        return redirect()->route('profile', ['user' => $user->id])
+            ->with('success', 'Credit added successfully.');
+    }
+
+    public function editCredit(Request $request, User $user)
+    {
+        if (!auth()->user()->hasPermissionTo('admin_users')) {
+            abort(401);
+        }
+        
+        return view('users.edit_credit', compact('user'));
+    }
+
+    public function create(Request $request)
+    {
+        if (!auth()->user()->hasPermissionTo('admin_users')) {
+            abort(401);
+        }
+        
+        $roles = Role::all();
+        $permissions = Permission::all();
+        
+        return view('users.create', compact('roles', 'permissions'));
+    }
+
+    public function store(Request $request)
+    {
+        if (!auth()->user()->hasPermissionTo('admin_users')) {
+            abort(401);
+        }
+        
+        $this->validate($request, [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|confirmed|min:8',
+            'credit' => 'nullable|numeric|min:0',
+        ]);
+        
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->credit = $request->credit ?? 0.00;
+        $user->save();
+        
+        if ($request->roles) {
+            $user->syncRoles($request->roles);
+        }
+        
+        if ($request->permissions) {
+            $user->syncPermissions($request->permissions);
+        }
+        
+        Artisan::call('cache:clear');
+        
+        return redirect()->route('users')
+            ->with('success', 'User created successfully');
+    }
+
+    /**
+     * Ensure required permissions and roles exist
+     */
+    public function ensurePermissionsAndRoles()
+    {
+        // Create permissions if they don't exist
+        $permissions = [
+            ['name' => 'view_products', 'display_name' => 'View Products', 'guard_name' => 'web'],
+            ['name' => 'add_to_cart', 'display_name' => 'Add to Cart', 'guard_name' => 'web']
+        ];
+        
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(
+                ['name' => $permission['name'], 'guard_name' => $permission['guard_name']],
+                ['display_name' => $permission['display_name']]
+            );
+        }
+        
+        // Create customer role if it doesn't exist
+        $customerRole = Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+        
+        // Assign permissions to customer role
+        $customerRole->givePermissionTo('view_products', 'add_to_cart');
+        
+        // Clear cache
+        Artisan::call('cache:clear');
+        
+        return redirect()->back()->with('success', 'Permissions and roles updated successfully');
     }
 } 

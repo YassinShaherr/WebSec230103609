@@ -5,6 +5,11 @@
     <div class="col col-10">
         <h1>Users</h1>
     </div>
+    <div class="col col-2">
+        @can('admin_users')
+        <a href="{{route('users_create')}}" class="btn btn-success form-control">Create User</a>
+        @endcan
+    </div>
 </div>
 <form>
     <div class="row">
