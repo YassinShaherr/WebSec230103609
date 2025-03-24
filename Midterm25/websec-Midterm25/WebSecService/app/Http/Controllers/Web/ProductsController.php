@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Web;
 
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use DB;
 
 use App\Http\Controllers\Controller;
@@ -39,29 +40,56 @@ class ProductsController extends Controller {
 	}
 
 	public function edit(Request $request, Product $product = null) {
-
 		if(!auth()->user()) return redirect('/');
-
-		$product = $product??new Product();
-
+		
+		$product = $product ?? new Product();
+		
+		if (!$product->exists) {
+			$product->code = '';
+			$product->name = '';
+			$product->price = '';
+			$product->model = '';
+			$product->description = '';
+			$product->photo = null;
+		}
+		
 		return view('products.edit', compact('product'));
 	}
 
-	public function save(Request $request, Product $product = null) {
+	public function save(Request $request, Product $product = null)
+{
+    $this->validate($request, [
+        'code' => 'required|unique:products,code,' . ($product->id ?? ''),
+        'name' => 'required',
+        'price' => 'required|numeric|min:0',
+        'model' => 'required',
+        'description' => 'required',
+        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    ]);
 
-		$this->validate($request, [
-	        'code' => ['required', 'string', 'max:32'],
-	        'name' => ['required', 'string', 'max:128'],
-	        'model' => ['required', 'string', 'max:256'],
-	        'description' => ['required', 'string', 'max:1024'],
-	        'price' => ['required', 'numeric'],
-	    ]);
+    $data = $request->except('photo');
+    
+    if ($request->hasFile('photo')) {
+        if ($product && $product->photo) {
+            $oldPath = public_path('images/' . $product->photo);
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+        
+        $file = $request->file('photo');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('images'), $filename);
+        $data['photo'] = $filename;
+    }
 
-		$product = $product??new Product();
-		$product->fill($request->all());
-		$product->save();
+    if ($product && $product->exists) {
+        $product->update($data);
+    } else {
+        $product = Product::create($data);
+    }
 
-		return redirect()->route('products_list');
+    return redirect()->route('products_list');
 	}
 
 	public function delete(Request $request, Product $product) {
@@ -72,4 +100,4 @@ class ProductsController extends Controller {
 
 		return redirect()->route('products_list');
 	}
-} 
+}

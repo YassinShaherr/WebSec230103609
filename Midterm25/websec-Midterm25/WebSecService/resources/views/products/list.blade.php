@@ -51,7 +51,11 @@
         <div class="card-body">
             <div class="row">
                 <div class="col col-sm-12 col-lg-4">
-                    <img src="{{asset("images/$product->photo")}}" class="img-thumbnail" alt="{{$product->name}}" width="100%">
+                    @if($product->photo)
+                        <img src="{{asset('images/' . $product->photo)}}" class="img-thumbnail" alt="{{$product->name}}" width="100%">
+                    @else
+                        <img src="{{asset('images/no-image.jpg')}}" class="img-thumbnail" alt="No image available" width="100%">
+                    @endif
                 </div>
                 <div class="col col-sm-12 col-lg-8 mt-3">
                     <div class="row mb-2">

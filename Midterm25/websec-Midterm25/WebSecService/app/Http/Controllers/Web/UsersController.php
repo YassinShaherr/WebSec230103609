@@ -36,10 +36,13 @@ class UsersController extends Controller {
 
     	try {
     		$this->validate($request, [
-	        'name' => ['required', 'string', 'min:5'],
-	        'email' => ['required', 'email', 'unique:users'],
-	        'password' => ['required', 'confirmed', Password::min(8)->numbers()->letters()->mixedCase()->symbols()],
-	    	]);
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|confirmed|min:8',
+            ], [
+                'password.confirmed' => 'The password confirmation does not match.',
+                'password.min' => 'The password must be at least 8 characters.',
+            ]);
     	}
     	catch(\Exception $e) {
 
